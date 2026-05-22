@@ -36,7 +36,7 @@ def add_landmark_measurement(graph, result, pose_5, landmark):
 
 def optimize(graph, initial_estimate):
     # TODO: Initialize the optimizer 
-
+    
 
     # TODO: Perform the optimization and print the result
 
