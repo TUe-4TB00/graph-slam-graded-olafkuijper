@@ -35,17 +35,18 @@ def add_landmark_measurement(graph, result, pose_5, landmark):
     return graph
 
 def optimize(graph, initial_estimate):
-    # TODO: Initialize the optimizer 
-    
-
-    # TODO: Perform the optimization and print the result
-
+    optimizer = gtsam.LevenbergMarquardtOptimizer(
+        graph,
+        initial_estimate,
+    )
+    # Perform the optimization
+    result = optimizer.optimize()
     return result
 
 def minimize_marginals(graph, initial_estimate, pose_options):
     #TODO: try different pose and landmark options here, and keep the one with the lowest sum of marginals.
-    best_pose = "a"      # chosen pose option
-    best_landmark = 1    # chosen landmark (1 or 2)
+    best_pose = "d"      # chosen pose option
+    best_landmark = 1   # chosen landmark (1 or 2)
     pose_5 = pose_options[best_pose]
     graph, initial_estimate = add_pose(graph, initial_estimate, pose_5)
     result = optimize(graph, initial_estimate)
@@ -54,8 +55,18 @@ def minimize_marginals(graph, initial_estimate, pose_options):
 
     # TODO: Calculate marginal covariances for the relevant variables and visualize the updated factor graph with covariances
     marginals = []
+    marginals = gtsam.Marginals(graph, result)
+    
     # The sum of the marginals for each landmark can be computed using marginals.marginalCovariance(L(x)).sum()
     sum_of_marginals = 0
+
+    for i in range(1, 6):
+
+        key = L(i)
+
+        if result.exists(key):
+            cov = marginals.marginalCovariance(key)
+            sum_of_marginals += cov.sum()
     return best_pose, best_landmark, sum_of_marginals
 
 def minimize_errors(graph, initial_estimate, pose_options):
@@ -70,6 +81,8 @@ def minimize_errors(graph, initial_estimate, pose_options):
 
     # TODO: create a list of errors (each index corresponds to a pose) and add the error of each pose to the list
     list_of_errors = []
+    for i in range(1,6): 
+        list_of_errors[i] = pose_options[i] - pose_5
     # TODO: compute the sum of the errors and return it along with the best pose and landmark
-    sum_of_errors = 0
+    sum_of_errors = list_of_errors.sum()
     return best_pose, best_landmark, sum_of_errors 
